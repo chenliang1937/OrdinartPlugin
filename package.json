@@ -1,0 +1,28 @@
+{
+  "name": "ordinart-plugin",
+  "version": "1.0.0",
+  "description": "a communication plugin for ordinart cold ifreezer",
+  "cordova": {
+    "id": "ordinart-plugin",
+    "platforms": [
+      "android"
+    ]
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chenliang1937/OrdinartPlugin.git"
+  },
+  "keywords": [
+    "ordinart cold"
+  ],
+  "author": "chenliang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chenliang1937/OrdinartPlugin/issues"
+  },
+  "homepage": "https://github.com/chenliang1937/OrdinartPlugin#readme"
+}
