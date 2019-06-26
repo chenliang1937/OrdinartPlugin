@@ -81,10 +81,10 @@ public class OrdinartPlugin extends CordovaPlugin {
             outputStream = serialPort.getOutputStream();
         } catch (IOException e) {
             Log.e(TAG, "openSerialPort: 打开串口异常：" + e.toString());
-            callbackContext.success("open serialport error");
+            callbackContext.error("open serialport error");
         }catch (SecurityException e) {
             Log.e(TAG, "openSerialPort: 没有串口读写权限：" + e.toString());
-            callbackContext.success("no read-write permission");
+            callbackContext.error("no read-write permission");
         }
         callbackContext.success("open serialport success");
         return serialPort;
@@ -102,7 +102,7 @@ public class OrdinartPlugin extends CordovaPlugin {
             serialPort.close();
         } catch (IOException e) {
             Log.e(TAG, "closeSerialPort: 关闭串口异常："+e.toString());
-            callbackContext.success("close serialport error");
+            callbackContext.error("close serialport error");
             return;
         }
         callbackContext.success("close serialport success");
@@ -144,7 +144,7 @@ public class OrdinartPlugin extends CordovaPlugin {
             }
         } catch (IOException e) {
             Log.e(TAG, "sendSerialPort: 串口数据发送失败："+e.toString());
-            callbackContext.success("send data error");
+            callbackContext.error("send data error");
         }
     }
 
@@ -162,7 +162,7 @@ public class OrdinartPlugin extends CordovaPlugin {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    callbackContext.success("read serialport data error");
+                    callbackContext.error("read serialport data error");
                     return;
                 }
             }
@@ -181,7 +181,7 @@ public class OrdinartPlugin extends CordovaPlugin {
             int type = inputStream.read();
             int length = inputStream.read();
 
-            byte[] content = new byte[received.getLength()];
+            byte[] content = new byte[length];
             inputStream.read(content);
             int crcread = inputStream.read();
 
@@ -259,7 +259,7 @@ public class OrdinartPlugin extends CordovaPlugin {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            callbackContext.success("sendDataInfo error");
+            callbackContext.error("sendDataInfo error");
         }
     }
 
@@ -289,7 +289,7 @@ public class OrdinartPlugin extends CordovaPlugin {
 
         } catch (Exception e) {
             e.printStackTrace();
-            callbackContext.success("sendParamInfo error");
+            callbackContext.error("sendParamInfo error");
         }
     }
 
@@ -325,7 +325,7 @@ public class OrdinartPlugin extends CordovaPlugin {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            callbackContext.success("open lock error");
+            callbackContext.error("open lock error");
         }
     }
 

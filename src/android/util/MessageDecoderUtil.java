@@ -1,7 +1,5 @@
 package com.zkmeiling.serialport.util;
 
-import android.content.Context;
-
 import com.zkmeiling.serialport.model.Message;
 import com.zkmeiling.serialport.model.Received;
 
@@ -14,7 +12,7 @@ import java.util.Date;
  */
 public class MessageDecoderUtil {
 
-    public static Message getMessage(Received received, Context mContext) throws ParseException {
+    public static Message getMessage(Received received) throws ParseException {
         Message message = new Message();
         byte[] content = received.getContent();
         /**Pt1000-1*/
@@ -53,15 +51,14 @@ public class MessageDecoderUtil {
         message.setEnvironmentTemperature(DataUtil.byte2doubleData(content[12],content[13]));
         /**湿度*/
         message.setHumidity(DataUtil.byte2doubleData(content[14], content[15]));
-        /**报警状态*/
-        message.setMessageStates(MessageDecoderUtil.getMessageState(content, mContext));
-        initState(message, content, mContext);
+        
+        initState(message, content);
 
         message.setRecodingState((int) content[20]);
         message.setExportFileState((int) content[21]);
         byte[] timeBytes = new byte[5];
         System.arraycopy(content, 22, timeBytes, 0, 5);
-        message.setRecordTime(FormatTimeUtil.formatTime(timeBytes));
+        message.setRecordTime(new Date());
         message.setReceiveTime(new Date());
 
         return message;
@@ -70,7 +67,7 @@ public class MessageDecoderUtil {
     /**
      * 解析原始数据的4类状态
      */
-    private static Message initState(Message message, byte[] content, Context mContext) {
+    private static Message initState(Message message, byte[] content) {
 
         if (content.length < 20) {
             return null;
@@ -157,184 +154,6 @@ public class MessageDecoderUtil {
         //----------------------------------state4 end---------------------------------------
 
         return message;
-    }
-
-
-    private static List<MessageState> getMessageState(byte[] content, Context mContext) {
-        if (content.length < 20) {
-            return null;
-        }
-        MessageState messageState = null;
-        List<MessageState> messageStates = new ArrayList<>();
-        int state1 = content[16] & 0xff;
-        int state2 = content[17] & 0xff;
-        int state3 = content[18] & 0xff;
-        int state4 = content[19] & 0xff;
-        /*
-         * 状态1
-         * 6种
-         */
-        if ((state1 & 0b0010_0000) >> 5 == 1) {
-            messageState = new MessageState("POWER_OFF", mContext.getString(R.string.POWER_OFF));
-            messageStates.add(messageState);
-        } else if ((state1 & 0b0010_0000) >> 5 == 0) {
-            messageState = new MessageState("POWER_ON", mContext.getString(R.string.POWER_ON));
-            messageStates.add(messageState);
-        }
-
-        if ((state1 & 0b0000_0010) >> 1 == 1) {
-            messageState = new MessageState("BATTERY_LOW", mContext.getString(R.string.BATTERY_LOW));
-            messageStates.add(messageState);
-        } else if ((state1 & 0b0000_0010) >> 1 == 0) {
-            messageState = new MessageState("BATTERY_NORMAL", mContext.getString(R.string.BATTERY_NORMAL));
-            messageStates.add(messageState);
-        }
-        /*
-         * 状态2
-         * 5种
-         */
-        if ((state2 & 0b0010_0000) >> 5 == 1) {
-            messageState = new MessageState("TEMPERATURE1_ERROR", mContext.getString(R.string.TEMPERATURE1_ERROR));
-            messageStates.add(messageState);
-        } else if ((state2 & 0b0010_0000) >> 5 == 0) {
-            messageState = new MessageState("TEMPERATURE1_NORMAL", mContext.getString(R.string.TEMPERATURE1_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state2 & 0b0001_0000) >> 4 == 1) {
-            messageState = new MessageState("TEMPERATURE2_ERROR", mContext.getString(R.string.TEMPERATURE2_ERROR));
-            messageStates.add(messageState);
-        } else if ((state2 & 0b0001_0000) >> 4 == 0) {
-            messageState = new MessageState("TEMPERATURE2_NORMAL", mContext.getString(R.string.TEMPERATURE2_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state2 & 0b0000_1000) >> 3 == 1) {
-            messageState = new MessageState("CONTROL_SENSOR_ERROR", mContext.getString(R.string.CONTROL_SENSOR_ERROR));
-            messageStates.add(messageState);
-        }else if ((state2 & 0b0000_1000) >> 3 == 0) {
-            messageState = new MessageState("CONTROL_SENSOR_NORMAL", mContext.getString(R.string.CONTROL_SENSOR_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state2 & 0b0000_0100) >> 2 == 1) {
-            messageState = new MessageState("DEFROSTING_SENSOR_ERROR", mContext.getString(R.string.DEFROSTING_SENSOR_ERROR));
-            messageStates.add(messageState);
-        }else if ((state2 & 0b0000_0100) >> 2 == 0) {
-            messageState = new MessageState("DEFROSTING_SENSOR_NORMAL", mContext.getString(R.string.DEFROSTING_SENSOR_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state2 & 0b0000_0010) >> 1 == 1) {
-            messageState = new MessageState("CONDENSER_TEMPERATURE_ERROR", mContext.getString(R.string.CONDENSER_TEMPERATURE_ERROR));
-            messageStates.add(messageState);
-        } else if ((state2 & 0b0000_0010) >> 1 == 0) {
-            messageState = new MessageState("CONDENSER_TEMPERATURE_NORMAL", mContext.getString(R.string.CONDENSER_TEMPERATURE_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state2 & 0b0000_0001) == 1) {
-            messageState = new MessageState("ENVIRONMENT_TEMPERATURE_ERROR", mContext.getString(R.string.ENVIRONMENT_TEMPERATURE_ERROR));
-            messageStates.add(messageState);
-        } else if ((state2 & 0b0000_0001) == 0) {
-            messageState = new MessageState("ENVIRONMENT_TEMPERATURE_NORMAL", mContext.getString(R.string.ENVIRONMENT_TEMPERATURE_NORMAL));
-            messageStates.add(messageState);
-        }
-        /*
-         * 状态3
-         * 8种
-         */
-        if (state3 >> 7 == 1) {
-            messageState = new MessageState("TEMPERATURE1_HEIGH", mContext.getString(R.string.TEMPERATURE1_HEIGH));
-            messageStates.add(messageState);
-        } else if (state3 >> 7 == 0) {
-            messageState = new MessageState("TEMPERATURE1_HEIGH_NORAML", mContext.getString(R.string.TEMPERATURE1_HEIGH_NORAML));
-            messageStates.add(messageState);
-        }
-
-        if ((state3 & 0b0100_0000) >> 6 == 1) {
-            messageState = new MessageState("TEMPERATURE1_LOW", mContext.getString(R.string.TEMPERATURE1_LOW));
-            messageStates.add(messageState);
-        } else if ((state3 & 0b0100_0000) >> 6 == 0) {
-            messageState = new MessageState("TEMPERATURE1_LOW_NORMAL", mContext.getString(R.string.TEMPERATURE1_LOW_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state3 & 0b0010_0000) >> 5 == 1) {
-            messageState = new MessageState("ENVIRONMENT_TEMPERATURE_HEIGH", mContext.getString(R.string.ENVIRONMENT_TEMPERATURE_HEIGH));
-            messageStates.add(messageState);
-        } else if ((state3 & 0b0010_0000) >> 5 == 0) {
-            messageState = new MessageState("ENVIRONMENT_TEMPERATURE_HEIGH_NORMAL", mContext.getString(R.string.ENVIRONMENT_TEMPERATURE_HEIGH_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state3 & 0b0001_0000) >> 4 == 1) {
-            messageState = new MessageState("CONDENSER_TEMPERTURE_HEIGH", mContext.getString(R.string.CONDENSER_TEMPERTURE_HEIGH));
-            messageStates.add(messageState);
-        } else if ((state3 & 0b0001_0000) >> 4 == 0) {
-            messageState = new MessageState("CONDENSER_TEMPERTURE_HEIGH_NORMAL", mContext.getString(R.string.CONDENSER_TEMPERTURE_HEIGH_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state3 & 0b0000_1000) >> 3 == 1) {
-            messageState = new MessageState("DOOR_OPEN_TIMEOUT", mContext.getString(R.string.DOOR_OPEN_TIMEOUT));
-            messageStates.add(messageState);
-        } else if ((state3 & 0b0000_1000) >> 3 == 0) {
-            messageState = new MessageState("DOOR_OPEN_TIMEOUT_NORMAL", mContext.getString(R.string.DOOR_OPEN_TIMEOUT_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state3 & 0b0001_0010) >> 1 == 1) {
-            messageState = new MessageState("POWER_VOTAGE_ERROR", mContext.getString(R.string.POWER_VOTAGE_ERROR));
-            messageStates.add(messageState);
-        } else if ((state3 & 0b0001_0010) >> 1 == 0) {
-            messageState = new MessageState("POWER_VOTAGE_NORMAL", mContext.getString(R.string.POWER_VOTAGE_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state3 & 0b0001_0001) == 1) {
-            messageState = new MessageState("CORRESPONDENCE_ERROR", mContext.getString(R.string.CORRESPONDENCE_ERROR));
-            messageStates.add(messageState);
-        } else if ((state3 & 0b0001_0001) == 0) {
-            messageState = new MessageState("CORRESPONDENCE_NORMAL", mContext.getString(R.string.CORRESPONDENCE_NORMAL));
-            messageStates.add(messageState);
-        }
-        /*
-         * 状态4
-         * 5种
-         */
-        if (state4 >> 7 == 1) {
-            messageState = new MessageState("BATTERY_DETECTION_ERROR", mContext.getString(R.string.BATTERY_DETECTION_ERROR));
-            messageStates.add(messageState);
-        } else if (state4 >> 7 == 0) {
-            messageState = new MessageState("BATTERY_DETECTION_NORMAL", mContext.getString(R.string.BATTERY_DETECTION_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state4 & 0b0010_0000) >> 5 == 1) {
-            messageState = new MessageState("HUMIDITY_SENSOR_ERROR", mContext.getString(R.string.HUMIDITY_SENSOR_ERROR));
-            messageStates.add(messageState);
-        } else if ((state4 & 0b0010_0000) >> 5 == 0) {
-            messageState = new MessageState("HUMIDITY_SENSOR_NORMAL", mContext.getString(R.string.HUMIDITY_SENSOR_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state4 & 0b0000_0100) >> 2 == 1) {
-            messageState = new MessageState("LOW_HUMIDITY_WARN", mContext.getString(R.string.LOW_HUMIDITY_WARN));
-            messageStates.add(messageState);
-        } else if ((state4 & 0b0000_0100) >> 2 == 0) {
-            messageState = new MessageState("LOW_HUMIDITY_NORMAL", mContext.getString(R.string.LOW_HUMIDITY_NORMAL));
-            messageStates.add(messageState);
-        }
-
-        if ((state4 & 0b0000_0010) >> 1 == 1) {
-            messageState = new MessageState("HIGH_HUMIDITY_WARN", mContext.getString(R.string.HIGH_HUMIDITY_WARN));
-            messageStates.add(messageState);
-        } else if ((state4 & 0b0000_0010) >> 1 == 0) {
-            messageState = new MessageState("HIGH_HUMIDITY_NORMAL", mContext.getString(R.string.HIGH_HUMIDITY_NORMAL));
-            messageStates.add(messageState);
-        }
-        return messageStates;
     }
 
 }
