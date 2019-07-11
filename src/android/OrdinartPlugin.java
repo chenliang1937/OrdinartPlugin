@@ -62,6 +62,9 @@ public class OrdinartPlugin extends CordovaPlugin {
             case "openLock":
                 openLock(callbackContext);
                 return true;
+            case "openLed":
+                openLed(callbackContext);
+                return true;
             default:
                 callbackContext.error("error");
                 return false;
@@ -181,7 +184,7 @@ public class OrdinartPlugin extends CordovaPlugin {
             int type = inputStream.read();
             int length = inputStream.read();
 
-            byte[] content = new byte[length];
+            byte[] content = new byte[length + 1];
             inputStream.read(content);
             int crcread = inputStream.read();
 
@@ -208,9 +211,9 @@ public class OrdinartPlugin extends CordovaPlugin {
 //                    onDataReceiveListener.onDataReceive(message);
                     callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, new Gson().toJson(message)));
                     break;
-                case 2:
+                case 5:
                     Message readParams = ParamsDecoderUtil.doDecoder(received);
-                    readParams.setType(2);
+                    readParams.setType(5);
                     readParams.setSourceDataState(1);
 //                    onDataReceiveListener.onDataReceive(readParams);
                     callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, new Gson().toJson(readParams)));
@@ -234,23 +237,25 @@ public class OrdinartPlugin extends CordovaPlugin {
     public void sendDataInfo(CallbackContext callbackContext) {
         try {
             Received received = new Received();
-            received.setType(0x01);
+            received.setType(0x04);
             received.setLength(3);
-            byte[] bytes1 = new byte[3];
+            byte[] bytes1 = new byte[4];
             bytes1[0] = 0;
             bytes1[1] = 0;
             bytes1[2] = 0;
+            bytes1[3] = 0;
 
             int crc8 = CrcUtil.sendInfoDoCrc(bytes1, received);
 
-            byte[] mBuffer = new byte[7];
+            byte[] mBuffer = new byte[8];
             mBuffer[0] = (byte) 0xA5;
-            mBuffer[1] = 0x01;
+            mBuffer[1] = 0x04;
             mBuffer[2] = 3;
             mBuffer[3] = 0;
             mBuffer[4] = 0;
             mBuffer[5] = 0;
-            mBuffer[6] = (byte) crc8;
+            mBuffer[6] = 0;
+            mBuffer[7] = (byte) crc8;
             if (outputStream != null) {
                 outputStream.write(mBuffer);
                 callbackContext.success("sendDataInfo success");
@@ -272,14 +277,16 @@ public class OrdinartPlugin extends CordovaPlugin {
             Received received = new Received();
             received.setType(0x02);
             received.setLength(0);
-            byte[] bytes1 = new byte[]{};
+            byte[] bytes1 = new byte[1];
+            bytes1[0] = 0;
             int crc8 = CrcUtil.sendInfoDoCrc(bytes1, received);
 
-            byte[] mBuffer = new byte[4];
+            byte[] mBuffer = new byte[5];
             mBuffer[0] = (byte) 0xA5;
             mBuffer[1] = 0x02;
             mBuffer[2] = 0;
-            mBuffer[3] = (byte) crc8;
+            mBuffer[3] = 0;
+            mBuffer[4] = (byte) crc8;
             if (outputStream != null) {
                 outputStream.write(mBuffer);
                 callbackContext.success("sendParamInfo success");
@@ -300,23 +307,25 @@ public class OrdinartPlugin extends CordovaPlugin {
     public void openLock(CallbackContext callbackContext) {
         try {
             Received received = new Received();
-            received.setType(0x01);
+            received.setType(0x04);
             received.setLength(3);
-            byte[] bytes1 = new byte[3];
+            byte[] bytes1 = new byte[4];
             bytes1[0] = 1;
             bytes1[1] = 0;
             bytes1[2] = 0;
+            bytes1[3] = 0;
 
             int crc8 = CrcUtil.sendInfoDoCrc(bytes1, received);
 
-            byte[] mBuffer = new byte[7];
+            byte[] mBuffer = new byte[8];
             mBuffer[0] = (byte) 0xA5;
-            mBuffer[1] = 0x01;
+            mBuffer[1] = 0x04;
             mBuffer[2] = 3;
             mBuffer[3] = 1;
             mBuffer[4] = 0;
             mBuffer[5] = 0;
-            mBuffer[6] = (byte) crc8;
+            mBuffer[6] = 0;
+            mBuffer[7] = (byte) crc8;
             if (outputStream != null) {
                 outputStream.write(mBuffer);
                 callbackContext.success("open lock success");
@@ -326,6 +335,44 @@ public class OrdinartPlugin extends CordovaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             callbackContext.error("open lock error");
+        }
+    }
+
+    /**
+     * 开led灯
+     * @param callbackContext
+     */
+    public void openLed(CallbackContext callbackContext) {
+        try {
+            Received received = new Received();
+            received.setType(0x04);
+            received.setLength(3);
+            byte[] bytes1 = new byte[4];
+            bytes1[0] = (byte) 0x80;
+            bytes1[1] = 0;
+            bytes1[2] = 0;
+            bytes1[3] = 0;
+
+            int crc8 = CrcUtil.sendInfoDoCrc(bytes1, received);
+
+            byte[] mBuffer = new byte[8];
+            mBuffer[0] = (byte) 0xA5;
+            mBuffer[1] = 0x04;
+            mBuffer[2] = 3;
+            mBuffer[3] = (byte) 0x80;
+            mBuffer[4] = 0;
+            mBuffer[5] = 0;
+            mBuffer[6] = 0;
+            mBuffer[7] = (byte) crc8;
+            if (outputStream != null) {
+                outputStream.write(mBuffer);
+                callbackContext.success("open led success");
+            } else {
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            callbackContext.error("open led error");
         }
     }
 

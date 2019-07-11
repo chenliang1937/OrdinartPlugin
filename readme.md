@@ -34,12 +34,16 @@ ordinartPlugin.sendParamInfo(successCallback, errorCallback);
 
 ordinartPlugin.openLock(successCallback, errorCallback);
 
+8.开led灯
+
+ordinartPlugin.openLed(successCallback, errorCallback);
+
 **示例**
 
 ```
 onDeviceReady: function() {
 ​```
-    ordinartPlugin.openSerialPort(["/dev/ttyS1", 9600], function(success) {
+    ordinartPlugin.openSerialPort(["/dev/ttyS3", 9600], function(success) {
         alert(success);
         ordinartPlugin.readSerial(function(data){
             alert(data);

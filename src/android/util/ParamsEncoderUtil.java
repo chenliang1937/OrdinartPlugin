@@ -25,7 +25,7 @@ public class ParamsEncoderUtil {
      * @throws ParseException
      */
     public static byte[] getBytes(ReadParams params) throws ParseException {
-        byte[] bytes = new byte[112];
+        byte[] bytes = new byte[113];
         bytes[0] = (byte)0xA5;
         bytes[1] = 0x03;
         bytes[2] = 0x6C;
@@ -173,30 +173,30 @@ public class ParamsEncoderUtil {
         /*温度数据记录周期*/
         bytes[97] = DataUtil.intData2low(params.getTemperatureDataRecordTime());
         bytes[98] = DataUtil.intData2high(params.getTemperatureDataRecordTime());
-        String setRecordingTime = params.getSetRecordingTime();
+        // String setRecordingTime = params.getSetRecordingTime();
 
-        int year = 0;
+        int year = 250;
         int month = 0;
         int day = 0;
         int hour = 0;
         int minute = 0;
-        /*以- 开头*/
-        if (setRecordingTime.startsWith("-")) {
-//            String[] time = setRecordingTime.split("-");
-//            year = 0 - Integer.parseInt(time[1]);
-            month = Integer.parseInt(setRecordingTime.split("-")[2]);
-            String timeLeft = setRecordingTime.split("-")[3];
-            day = Integer.parseInt(timeLeft.substring(0, timeLeft.indexOf(" ")));
-            hour = Integer.parseInt(timeLeft.substring(timeLeft.indexOf(" ") + 1, timeLeft.indexOf(":")));
-            minute = Integer.parseInt(timeLeft.substring(timeLeft.indexOf(":") + 1));
-        } else {
-//            year = Integer.parseInt(setRecordingTime.substring(0, setRecordingTime.indexOf("-")));
-            month = Integer.parseInt(setRecordingTime.substring(setRecordingTime.indexOf("-") + 1, setRecordingTime.lastIndexOf("-")));
-            day = Integer.parseInt(setRecordingTime.substring(setRecordingTime.lastIndexOf("-") + 1, setRecordingTime.indexOf(" ")));
-            hour = Integer.parseInt(setRecordingTime.substring(setRecordingTime.indexOf(" ") + 1, setRecordingTime.indexOf(":")));
-            minute = Integer.parseInt(setRecordingTime.substring(setRecordingTime.indexOf(":") + 1));
-        }
-        year = 250;
+//         /*以- 开头*/
+//         if (setRecordingTime.startsWith("-")) {
+// //            String[] time = setRecordingTime.split("-");
+// //            year = 0 - Integer.parseInt(time[1]);
+//             month = Integer.parseInt(setRecordingTime.split("-")[2]);
+//             String timeLeft = setRecordingTime.split("-")[3];
+//             day = Integer.parseInt(timeLeft.substring(0, timeLeft.indexOf(" ")));
+//             hour = Integer.parseInt(timeLeft.substring(timeLeft.indexOf(" ") + 1, timeLeft.indexOf(":")));
+//             minute = Integer.parseInt(timeLeft.substring(timeLeft.indexOf(":") + 1));
+//         } else {
+// //            year = Integer.parseInt(setRecordingTime.substring(0, setRecordingTime.indexOf("-")));
+//             month = Integer.parseInt(setRecordingTime.substring(setRecordingTime.indexOf("-") + 1, setRecordingTime.lastIndexOf("-")));
+//             day = Integer.parseInt(setRecordingTime.substring(setRecordingTime.lastIndexOf("-") + 1, setRecordingTime.indexOf(" ")));
+//             hour = Integer.parseInt(setRecordingTime.substring(setRecordingTime.indexOf(" ") + 1, setRecordingTime.indexOf(":")));
+//             minute = Integer.parseInt(setRecordingTime.substring(setRecordingTime.indexOf(":") + 1));
+//         }
+
         /*设定记录仪模块的时间   -年*/
         bytes[99] = DataUtil.intData2low(year);
         bytes[100] = DataUtil.intData2high(year);
@@ -215,10 +215,11 @@ public class ParamsEncoderUtil {
         /*管理员菜单密码设置*/
         bytes[109] = DataUtil.intData2low(params.getAdminMenuPassword());
         bytes[110] = DataUtil.intData2high(params.getAdminMenuPassword());
+        bytes[111] = 0;
 
-        byte[] contents = Arrays.copyOfRange(bytes, 0, 111);
+        byte[] contents = Arrays.copyOfRange(bytes, 0, 112);
         int crc = CrcUtil.doCrc(contents);
-        bytes[111] = (byte) crc;
+        bytes[112] = (byte) crc;
 
         return bytes;
     }

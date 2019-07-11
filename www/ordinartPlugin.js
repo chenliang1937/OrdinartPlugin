@@ -74,7 +74,18 @@ var ordinartPlugin = {
             'openLock',
             []
         );
-    }
+    },
+
+    /** 开led灯 */
+    openLed: function (successCallback, errorCallback) {
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            'OrdinartPlugin',
+            'openLed',
+            []
+        );
+    },
 };
 
 module.exports = ordinartPlugin;
