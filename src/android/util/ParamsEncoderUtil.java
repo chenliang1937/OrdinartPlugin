@@ -11,7 +11,7 @@ import java.util.Arrays;
  */
 public class ParamsEncoderUtil {
 
-    public static byte[] doEncoder(ReadParams params) throws IOException, ParseException {
+    public static byte[] doEncoder(ReadParams params) {
         byte[] bytes = ParamsEncoderUtil.getBytes(params);
         return bytes;
 
@@ -24,7 +24,7 @@ public class ParamsEncoderUtil {
      * @return
      * @throws ParseException
      */
-    public static byte[] getBytes(ReadParams params) throws ParseException {
+    public static byte[] getBytes(ReadParams params) {
         byte[] bytes = new byte[113];
         bytes[0] = (byte)0xA5;
         bytes[1] = 0x03;
@@ -60,8 +60,8 @@ public class ParamsEncoderUtil {
         bytes[21] = DataUtil.doubleData2low(params.getEvnHighTemperatureWarn());
         bytes[22] = DataUtil.doubleData2high(params.getEvnHighTemperatureWarn());
         /**门加热模式*/
-        bytes[23] = DataUtil.doubleData2low(params.getDoorHeaterMode());
-        bytes[24] = DataUtil.doubleData2high(params.getDoorHeaterMode());
+        bytes[23] = DataUtil.intData2low(params.getDoorHeaterMode());
+        bytes[24] = DataUtil.intData2high(params.getDoorHeaterMode());
         /**显示模式*/
         bytes[25] = DataUtil.intData2low(params.getDisplayMode());
         bytes[26] = DataUtil.intData2high(params.getDisplayMode());
@@ -165,8 +165,8 @@ public class ParamsEncoderUtil {
         bytes[91] = DataUtil.doubleData2low(params.getHumidityMeasureMax());
         bytes[92] = DataUtil.doubleData2high(params.getHumidityMeasureMax());
         /**湿度超限处理*/
-        bytes[93] = DataUtil.doubleData2low(params.getHumidityOutOfRange());
-        bytes[94] = DataUtil.doubleData2high(params.getHumidityOutOfRange());
+        bytes[93] = DataUtil.intData2low(params.getHumidityOutOfRange());
+        bytes[94] = DataUtil.intData2high(params.getHumidityOutOfRange());
         /*电池低电压检测*/
         bytes[95] = DataUtil.intData2low(params.getBatteryVoltageDetection());
         bytes[96] = DataUtil.intData2high(params.getBatteryVoltageDetection());
